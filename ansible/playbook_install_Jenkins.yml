@@ -1,0 +1,37 @@
+---
+- name: Install Jenkins Master
+  hosts: jenkins_server
+  become: yes
+
+  tasks:
+  - name: Download key
+    shell: wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+    register: jkeys
+  
+  - name: Debug key
+    debug: msg="{{ jkeys.stdout }}" 
+      
+
+  - name: Add text to sources
+    shell: echo 'deb https://pkg.jenkins.io/debian-stable binary/' >> /etc/apt/sources.list
+    register: sources
+
+  - name: Debug sources
+    debug: msg="{{ sources.stdout }}"
+
+
+  - name: Install Java
+    apt: update_cache=yes name=openjdk-8-jdk
+      
+  - name: Install Jenkins
+    apt: name=jenkins
+    
+  - name: Jenkins Service
+    service: name=jenkins state=started enabled=yes
+
+  - name: Jenkins password
+    shell: sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+    register: jenkinspassword
+
+  - name: Debug password
+    debug: msg="{{ jenkinspassword.stdout }}"

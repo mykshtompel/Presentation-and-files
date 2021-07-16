@@ -1,0 +1,158 @@
+echo "--Build--"
+echo "Build is starting"
+ip a
+ls -al
+
+cat requirements.txt
+
+sudo pip3 install -r requirements.txt
+sudo apt-get update -y
+python3 --version
+pip3 --version
+
+sudo mkdir -p /home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible
+
+sudo sudo chgrp -R ubuntu /home/ubuntu/jenkins && sudo chmod -R g+rw /home/ubuntu/jenkins && sudo chown -R ubuntu /home/ubuntu/jenkins
+
+sudo bash -c 'cat <<EOF > /etc/systemd/system/gunicorn3.service
+[Unit]
+Description=Gunicorn service
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible
+ExecStart=/usr/bin/gunicorn3 --workers 3 --bind unix:flaskapp.sock -m 007 app:app
+EOF'
+
+sudo systemctl daemon-reload
+sudo service gunicorn3 start
+sudo service gunicorn3 status
+
+sudo cat /etc/systemd/system/gunicorn3.service
+
+
+sudo bash -c 'cat <<EOF > /etc/nginx/sites-enabled/flaskapp
+server{
+    listen 80;
+    server_name 18.217.76.100 18.216.221.162;
+
+    location / {
+        proxy_pass http://unix:/home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible/flaskapp.sock;
+    }
+}'
+
+sudo cat /etc/nginx/sites-enabled/flaskapp
+
+sudo service nginx restart
+sudo service gunicorn3 restart
+
+
+
+echo "Build number is $BUILD_NUMBER"
+
+echo "Build is finishing"
+echo "--Build--"
+
+
+
+echo "--Test--"
+echo "Test is starting"
+
+sleep 10
+response=$(curl -s -o /dev/null -w "%{http_code}\n" 18.217.76.100)
+if [ "$response" != "200" ]
+then
+ exit 1
+fi
+
+echo "Test is finishing"
+echo "--Test--"
+
+
+
+
+tar -cvf /home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible/artif.tar .
+cd /home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible
+ls -al
+
+
+
+ip a
+pwd
+mkdir -p /home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible/
+ls -al
+sudo tar -xvf /home/ubuntu/artif.tar -C /home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible/
+pwd
+cd /home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible/
+ls -al
+
+cat requirements.txt
+
+sudo pip3 install -r requirements.txt
+sudo apt-get update -y
+pip3 install flask
+python3 --version
+pip3 --version
+
+sudo mkdir -p /home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible
+
+sudo sudo chgrp -R ubuntu /home/ubuntu/jenkins && sudo chmod -R g+rw /home/ubuntu/jenkins && sudo chown -R ubuntu /home/ubuntu/jenkins
+
+sudo bash -c 'cat <<EOF > /etc/systemd/system/gunicorn3.service
+[Unit]
+Description=Gunicorn service
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible
+ExecStart=/usr/bin/gunicorn3 --workers 3 --bind unix:flaskapp.sock -m 007 app:app
+EOF'
+
+sudo systemctl daemon-reload
+sudo service gunicorn3 start
+sudo service gunicorn3 status
+
+sudo cat /etc/systemd/system/gunicorn3.service
+
+sudo bash -c 'cat <<EOF > /etc/nginx/sites-enabled/flaskapp
+server{
+    listen 80;
+    server_name 18.217.76.100 18.216.221.162;
+
+    location / {
+        proxy_pass http://unix:/home/ubuntu/jenkins/workspace/deploy-to-prod-server-ansible/flaskapp.sock;
+    }
+}'
+
+sudo cat /etc/nginx/sites-enabled/flaskapp
+
+sudo service nginx restart
+sudo service gunicorn3 restart
+
+echo "Build number is $BUILD_NUMBER"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+---
+- name: Install Jenkins Node
+  hosts: jenkins_nodes
+  become: yes
+
+  tasks:
+  - name: Create Jenkins dir
+    shell: mkdir -p /home/ubuntu/jenkins
+ 
+  - name: Install Java
+    apt: update_cache=yes name=openjdk-8-jdk
+      
+  - name: Change owner of Jenkins dir
+    shell: sudo chgrp -R ubuntu /home/ubuntu/jenkins && sudo chmod -R g+rw /home/ubuntu/jenkins && chown -R ubuntu /home/ubuntu/jenkins

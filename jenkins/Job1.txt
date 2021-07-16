@@ -1,0 +1,79 @@
+echo "--Build--"
+echo "Build is starting"
+ip a
+ls -al
+
+cat requirements.txt
+
+sudo pip3 install -r requirements.txt
+sudo apt-get update -y
+python3 --version
+pip3 --version
+
+sudo cat /etc/systemd/system/gunicorn3.service
+
+sudo cat /etc/nginx/sites-enabled/flaskapp
+
+sudo service nginx restart
+sudo service gunicorn3 restart
+
+echo "Build number is $BUILD_NUMBER"
+
+echo "Build is finishing"
+echo "--Build--"
+
+
+
+echo "--Test--"
+echo "Test is starting"
+
+sleep 10
+response=$(curl -s -o /dev/null -w "%{http_code}\n" 18.217.76.100)
+if [ "$response" != "200" ]
+then
+ exit 1
+fi
+
+echo "Test is finishing"
+echo "--Test--"
+
+
+
+tar -cvf /home/ubuntu/jenkins/workspace/deploy-to-test-server-ansible/artif.tar .
+cd /home/ubuntu/jenkins/workspace/deploy-to-test-server-ansible
+ls -al
+
+
+
+ip a
+pwd
+mkdir -p /home/ubuntu/jenkins/workspace/deploy-to-test-server-ansible/
+ls -al
+sudo tar -xvf /home/ubuntu/artif.tar -C /home/ubuntu/jenkins/workspace/deploy-to-test-server-ansible/
+pwd
+cd /home/ubuntu/jenkins/workspace/deploy-to-test-server-ansible/
+ls -al
+
+cat requirements.txt
+
+sudo pip3 install -r requirements.txt
+sudo apt-get update -y
+python3 --version
+pip3 --version
+
+sudo cat /etc/systemd/system/gunicorn3.service
+
+sudo cat /etc/nginx/sites-enabled/flaskapp
+
+sudo service nginx restart
+sudo service gunicorn3 restart
+
+echo "Build number is $BUILD_NUMBER"
+
+
+
+
+
+
+
+
